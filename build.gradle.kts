@@ -3,10 +3,16 @@ plugins {
     id("java-library")
     id("xyz.jpenilla.run-paper") version "2.3.0"
     id("com.gradleup.shadow") version "8.3.0"
+    id("com.modrinth.minotaur") version "2.+"
 }
 
+val supportedVersions = listOf(
+    "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8",
+    "1.21.9"
+)
+
 group = "net.pwing.itemattributes"
-version = "1.0.0"
+version = "1.0.0-SNAPSHOT"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
@@ -77,4 +83,16 @@ tasks {
             expand("version" to rootProject.version)
         }
     }
+}
+
+modrinth {
+    val snapshot = "SNAPSHOT" in rootProject.version.toString()
+
+    token.set(System.getenv("MODRINTH_TOKEN") ?: "")
+    projectId.set("item-attributes")
+    versionNumber.set(rootProject.version as String + if (snapshot) "-" + System.getenv("BUILD_NUMBER") else "")
+    versionType.set(if (snapshot) "beta" else "release")
+    changelog.set(System.getenv("CHANGELOG") ?: "")
+    uploadFile.set(tasks.shadowJar)
+    gameVersions.set(supportedVersions)
 }
