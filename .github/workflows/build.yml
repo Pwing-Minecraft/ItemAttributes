@@ -18,7 +18,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Publish to Modrinth
-        if: ${{ success() && github.repository == 'Redned235/ItemAttributes' && github.ref_name == 'master' }}
+        if: ${{ success() && github.repository == 'Pwing-Minecraft/ItemAttributes' && github.ref_name == 'master' }}
         env:
           CHANGELOG: ${{ github.event.head_commit.message }}
           BUILD_NUMBER: ${{ github.run_number }}
