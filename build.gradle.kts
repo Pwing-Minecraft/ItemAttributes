@@ -45,6 +45,8 @@ dependencies {
 
     api(libs.configlib)
     api(libs.exp4j)
+
+    implementation(libs.bstats.bukkit)
 }
 
 tasks {
@@ -52,6 +54,8 @@ tasks {
         from("src/main/java/resources") {
             include("*")
         }
+
+        relocate("org.bstats", "net.pwing.itemattributes.shaded.bstats")
 
         archiveClassifier.set("")
     }

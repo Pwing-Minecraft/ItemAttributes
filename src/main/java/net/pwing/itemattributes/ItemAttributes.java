@@ -15,6 +15,7 @@ import net.pwing.itemattributes.item.tier.BuiltinTiers;
 import net.pwing.itemattributes.message.MessageLoader;
 import net.pwing.itemattributes.util.ColorUtils;
 import net.pwing.itemattributes.util.ConfigUtils;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -62,6 +63,8 @@ public class ItemAttributes extends JavaPlugin {
         // Enable third party features and integrations
         Features.init();
         ColorUtils.init();
+
+        new Metrics(this, 27466);
     }
 
     @Override

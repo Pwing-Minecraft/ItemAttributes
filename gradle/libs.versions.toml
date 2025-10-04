@@ -12,6 +12,7 @@ mythic = "5.6.1"
 mythiclib = "1.6.2-SNAPSHOT"
 itemsadder = "3.6.1"
 nexo = "1.9.0"
+bstats-bukkit = "2.2.1"
 
 [libraries]
 spigot-api = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot-api" }
@@ -27,3 +28,4 @@ mythic = { group = "io.lumine", name = "Mythic-Dist", version.ref = "mythic" }
 mythiclib = { group = "io.lumine", name = "MythicLib-dist", version.ref = "mythiclib" }
 itemsadder = { group = "com.github.LoneDev6", name = "api-itemsadder", version.ref = "itemsadder" }
 nexo = { group = "com.nexomc", name = "nexo", version.ref = "nexo" }
+bstats-bukkit = { group = "org.bstats", name = "bstats-bukkit", version.ref = "bstats-bukkit" }
