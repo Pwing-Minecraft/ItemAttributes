@@ -94,5 +94,6 @@ modrinth {
     versionType.set(if (snapshot) "beta" else "release")
     changelog.set(System.getenv("CHANGELOG") ?: "")
     uploadFile.set(tasks.shadowJar)
+    loaders.set(listOf("paper", "spigot"))
     gameVersions.set(supportedVersions)
 }
