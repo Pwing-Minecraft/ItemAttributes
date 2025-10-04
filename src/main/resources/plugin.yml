@@ -1,0 +1,11 @@
+name: ItemAttributes
+main: net.pwing.itemattributes.ItemAttributes
+description: The lite version of ItemAttributes, an item attributes plugin.
+version: ${version}
+author: Redned
+api-version: 1.19
+softdepend: [MagicSpells, PlaceholderAPI, ItemsAdder, MythicMobs, MythicCrucible, Oraxen]
+libraries:
+  - net.kyori:adventure-platform-bukkit:4.3.4
+  - net.kyori:adventure-text-minimessage:4.17.0
+  - net.kyori:adventure-text-serializer-plain:4.17.0

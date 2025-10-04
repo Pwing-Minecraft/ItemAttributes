@@ -1,0 +1,70 @@
+items:
+  equipment:
+    name: <%tier_color%>%name%</%tier_color%>
+    flags:
+      - hide_enchants
+      - hide_attributes
+      - hide_unbreakable
+      - hide_additional_tooltip
+    options:
+      allow-renaming: true
+      render-vanilla-attributes: false
+    lore:
+      - simple:
+          max-characters: 35
+          requirements:
+            - requires_component:
+                key: "itemattributes:description"
+          lines:
+            - <gray>%description%</gray>
+            - " " # Empty spacer line
+      - attributes:
+          header: <yellow>Attributes:</yellow>
+          footer: " "
+      - slots:
+          header: <yellow>Accessory Slots:</yellow>
+          display: "<dark_gray>-</dark_gray> <gray>Slot:</gray> <white>%slot_info%</white>"
+          footer: " "
+          displayed-slot-types: [attribute, attribute_list]
+      - slots:
+          header: <yellow>Spell Slots:</yellow>
+          display: "<dark_gray>-</dark_gray> <gray>Slot:</gray> <white>%slot_info%</white>"
+          footer: " "
+          displayed-slot-types: [spell]
+      - simple:
+          requirements:
+            - requires_component:
+                key: "minecraft:damage"
+          lines:
+            - "<gray>Durability: <white>%durability%<gray>/</gray>%max_durability%</white></gray>"
+      - simple:
+          requirements:
+            - requires_component:
+                key: "itemattributes:tier"
+          lines:
+            - "<gray>Tier: <%tier_color%>%tier%<%tier_color%></gray>"
+  gem:
+    name: "%name%"
+    flags:
+      - hide_enchants
+      - hide_attributes
+      - hide_unbreakable
+      - hide_additional_tooltip
+    lore:
+      - attributes:
+          header: <yellow>Attributes:</yellow>
+          footer: " "
+      - simple:
+          max-characters: 35
+          requirements:
+            - requires_component:
+                key: "itemattributes:description"
+          lines:
+            - <gray>%description%</gray>
+            - " " # Empty spacer line
+      - simple:
+          requirements:
+            - requires_component:
+                key: "itemattributes:tier"
+          lines:
+            - "<gray>Tier: <%tier_color%>%tier%<%tier_color%></gray>"

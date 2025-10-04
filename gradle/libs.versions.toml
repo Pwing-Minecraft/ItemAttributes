@@ -1,0 +1,29 @@
+[versions]
+spigot-api = "1.21.3-R0.1-SNAPSHOT"
+adventure-platform = "4.3.4"
+adventure-text-minimessage = "4.17.0"
+adventure-text-serializer-plain = "4.17.0"
+placeholderapi = "2.11.6"
+configlib = "master-SNAPSHOT"
+exp4j = "0.4.8"
+magicspells = "1507fdf"
+oraxen = "1.173.0"
+mythic = "5.6.1"
+mythiclib = "1.6.2-SNAPSHOT"
+itemsadder = "3.6.1"
+nexo = "1.9.0"
+
+[libraries]
+spigot-api = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot-api" }
+adventure-platform-bukkit = { group = "net.kyori", name = "adventure-platform-bukkit", version.ref = "adventure-platform" }
+adventure-text-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure-text-minimessage" }
+adventure-text-serializer-plain = { group = "net.kyori", name = "adventure-text-serializer-plain", version.ref = "adventure-text-serializer-plain" }
+placeholderapi = { group = "me.clip", name = "placeholderapi", version.ref = "placeholderapi" }
+configlib = { group = "com.github.Redned235.ConfigLib", name = "spigot", version.ref = "configlib" }
+exp4j = { group = "net.objecthunter", name = "exp4j", version.ref = "exp4j" }
+magicspells = { group = "com.github.TheComputerGeek2.MagicSpells", name = "core", version.ref = "magicspells" }
+oraxen = { group = "io.th0rgal", name = "oraxen", version.ref = "oraxen" }
+mythic = { group = "io.lumine", name = "Mythic-Dist", version.ref = "mythic" }
+mythiclib = { group = "io.lumine", name = "MythicLib-dist", version.ref = "mythiclib" }
+itemsadder = { group = "com.github.LoneDev6", name = "api-itemsadder", version.ref = "itemsadder" }
+nexo = { group = "com.nexomc", name = "nexo", version.ref = "nexo" }

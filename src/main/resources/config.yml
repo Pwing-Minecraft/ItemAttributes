@@ -1,0 +1,25 @@
+config-version: 1.0 # The config version, do not change!
+
+# The mechanism for applying custom slots to items (i.e. socket gems).
+# Available options:
+# - anvil
+# - drag
+# - none (useful if a custom mechanism is desired)
+slot-mechanism: anvil
+
+# Whether the display name of the slot creator should be used as the slot
+# name. If this option is set to true, an item named "Epic Socket Gem", for
+# instance, would be shown in as the slot name.
+copy-slot-name:
+  attribute: true
+  attribute_list: true
+  spell: false
+
+# Items that should be ignored from the offhand exclusion. This prevents situations
+# where, for example, a player has a sword in their main hand with a damage attribute
+# and a sword in their offhand with damage too. We only want the damage dealt by the
+# main hand sword, so we ignore the offhand sword.
+#
+# Adding items below will skip this check where attributes may be desired in the offhand.
+bypasses-offhand-check:
+  - shield
