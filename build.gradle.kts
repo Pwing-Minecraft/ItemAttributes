@@ -32,6 +32,8 @@ repositories {
         }
     }
     maven("https://repo.nexomc.com/releases")
+    maven("https://central.sonatype.com/repository/maven-snapshots")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 
 dependencies {
@@ -48,6 +50,9 @@ dependencies {
     compileOnly(libs.itemsadder)
     compileOnly(libs.placeholderapi)
     compileOnly(libs.nexo)
+    compileOnly(libs.magic)
+    compileOnly(libs.auraskills)
+    compileOnly(libs.fabled)
 
     api(libs.configlib)
     api(libs.exp4j)

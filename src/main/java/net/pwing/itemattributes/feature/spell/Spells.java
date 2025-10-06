@@ -17,6 +17,10 @@ public final class Spells extends FeatureController<PluginFeature<SpellFeature>>
         if (Bukkit.getPluginManager().isPluginEnabled("MagicSpells")) {
             register(new MagicSpellsSpellFeature());
         }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("Magic")) {
+            register(new MagicSpellFeature());
+        }
     }
 
     public static void cast(Player player, NamespacedKey spellKey) {

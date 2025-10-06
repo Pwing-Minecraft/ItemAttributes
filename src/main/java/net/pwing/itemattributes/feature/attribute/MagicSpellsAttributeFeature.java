@@ -18,17 +18,19 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 
 public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature> implements AttributesFeature {
-    private final Method getManaBarMethod;
+    private static final Method GET_MANA_BAR_METHOD;
 
-    public MagicSpellsAttributeFeature() {
-        super("MagicSpells");
-
+    static {
         try {
-            this.getManaBarMethod = ManaSystem.class.getDeclaredMethod("getManaBar", Player.class);
-            this.getManaBarMethod.setAccessible(true);
+            GET_MANA_BAR_METHOD = ManaSystem.class.getDeclaredMethod("getManaBar", Player.class);
+            GET_MANA_BAR_METHOD.setAccessible(true);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Failed to access getManaBar method", e);
         }
+    }
+
+    public MagicSpellsAttributeFeature() {
+        super("MagicSpells");
     }
 
     @Override
@@ -43,15 +45,12 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
 
     @Override
     public void apply(Player player, AttributeApplicator applicator, Number value) {
-        ManaRank rank = this.getManaRank(player);
-        int baseMaxMana = rank.getMaxMana();
-
         MagicSpellsAttribute attribute = getAttribute(applicator.getKey());
         if (attribute == null) {
             return;
         }
 
-        attribute.apply(player, (int) AttributeCalculator.calculateAttributeValue(baseMaxMana, value.doubleValue(), applicator.getOperation()));
+        attribute.apply(player, (int) AttributeCalculator.calculateAttributeValue(attribute.getBaseValue(player), value.doubleValue(), applicator.getOperation()));
 
         // Refresh the mana when we update it
         MagicSpells.getManaHandler().showMana(player);
@@ -59,27 +58,24 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
 
     @Override
     public void reset(Player player, NamespacedKey attributeKey) {
-        ManaRank rank = this.getManaRank(player);
-        int baseMaxMana = rank.getMaxMana();
-
         MagicSpellsAttribute attribute = getAttribute(attributeKey);
         if (attribute == null) {
             return;
         }
 
-        attribute.apply(player, baseMaxMana);
+        attribute.apply(player, attribute.getBaseValue(player));
 
         // Refresh the mana when we update it
         MagicSpells.getManaHandler().showMana(player);
     }
 
-    private ManaRank getManaRank(Player player) {
+    private static ManaRank getManaRank(Player player) {
         if (!(MagicSpells.getManaHandler() instanceof ManaSystem system)) {
             return null;
         }
 
         try {
-            ManaBar bar = (ManaBar) this.getManaBarMethod.invoke(system, player);
+            ManaBar bar = (ManaBar) GET_MANA_BAR_METHOD.invoke(system, player);
             return bar.getManaRank();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -96,21 +92,27 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
     }
 
     public enum MagicSpellsAttribute {
-        MANA_CAPACITY("mana_capacity", MagicSpells.getManaHandler()::getMana, MagicSpells.getManaHandler()::setMaxMana),
-        MANA_REGEN("mana_regen", MagicSpells.getManaHandler()::getRegenAmount, MagicSpells.getManaHandler()::setRegenAmount);
+        MANA_CAPACITY("mana_capacity", player -> getManaRank(player).getMaxMana(), MagicSpells.getManaHandler()::getMaxMana, MagicSpells.getManaHandler()::setMaxMana),
+        MANA_REGEN("mana_regen", player -> getManaRank(player).getRegenAmount(), MagicSpells.getManaHandler()::getRegenAmount, MagicSpells.getManaHandler()::setRegenAmount);
 
         private final String key;
+        private final ToIntFunction<Player> baseAttributeGetter;
         private final ToIntFunction<Player> attributeGetter;
         private final ObjIntConsumer<Player> attributeApplier;
 
-        MagicSpellsAttribute(String key, ToIntFunction<Player> attributeGetter, ObjIntConsumer<Player> attributeApplier) {
+        MagicSpellsAttribute(String key, ToIntFunction<Player> baseAttributeGetter, ToIntFunction<Player> attributeGetter, ObjIntConsumer<Player> attributeApplier) {
             this.key = key;
+            this.baseAttributeGetter = baseAttributeGetter;
             this.attributeGetter = attributeGetter;
             this.attributeApplier = attributeApplier;
         }
 
         public String getKey() {
             return this.key;
+        }
+
+        public int getBaseValue(Player player) {
+            return this.baseAttributeGetter.applyAsInt(player);
         }
 
         public int getValue(Player player) {

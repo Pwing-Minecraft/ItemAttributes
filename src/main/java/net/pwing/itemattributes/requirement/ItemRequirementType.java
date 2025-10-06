@@ -11,6 +11,7 @@ public final class ItemRequirementType<T, R extends ItemRequirement<T>> {
     private static final ItemRequirementTable TYPES = new ItemRequirementTable();
 
     public static final ItemRequirementType<Object, RequiresAttributeRequirement> REQUIRES_ATTRIBUTE = register(RequirementType.UNIVERSAL, "requires_attribute", RequiresAttributeRequirement.class);
+    public static final ItemRequirementType<Object, RequiresSkillRequirement> REQUIRES_SKILL = register(RequirementType.UNIVERSAL, "requires_skill", RequiresSkillRequirement.class);
     public static final ItemRequirementType<AttributableItem, RequiresComponentRequirement> REQUIRES_COMPONENT = register(RequirementType.ITEM, "requires_component", RequiresComponentRequirement.class);
     public static final ItemRequirementType<EntityType, RequiresEntityRequirement> REQUIRES_ENTITY = register(RequirementType.ENTITY, "requires_entity", RequiresEntityRequirement.class);
     public static final ItemRequirementType<AttributableItem, RequiresItemRequirement> REQUIRES_ITEM = register(RequirementType.ITEM, "requires_item", RequiresItemRequirement.class);
@@ -75,6 +76,7 @@ public final class ItemRequirementType<T, R extends ItemRequirement<T>> {
             map.put(name, itemRequirementType);
         }
 
+        @SuppressWarnings("unchecked")
         public <T, R extends ItemRequirement<T>> ItemRequirementType<T, R> get(RequirementType<T> type, String name) {
             Map<String, ItemRequirementType<?, ?>> map = this.table.get(type);
             if (map == null) {

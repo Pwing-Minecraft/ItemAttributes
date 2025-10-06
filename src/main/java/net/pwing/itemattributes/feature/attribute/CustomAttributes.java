@@ -17,6 +17,11 @@ public final class CustomAttributes extends FeatureController<PluginFeature<Attr
         if (Bukkit.getPluginManager().isPluginEnabled("MagicSpells")) {
             register(new MagicSpellsAttributeFeature());
         }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("AuraSkills")) {
+            register(new AuraSkillsAttributeFeature());
+        }
+
     }
 
     public static Number getValue(Player player, NamespacedKey attributeKey) {
