@@ -5,6 +5,8 @@ import me.redned.config.Id;
 import net.pwing.itemattributes.item.config.AttributableComponentContextProvider;
 import net.pwing.itemattributes.item.config.LoreCreatorContextProvider;
 import net.pwing.itemattributes.item.lore.LoreCreator;
+import net.pwing.itemattributes.requirement.ItemRequirement;
+import net.pwing.itemattributes.requirement.config.ItemItemRequirementContextProvider;
 import net.pwing.itemattributes.util.RenderableComponent;
 import org.bukkit.inventory.ItemFlag;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +29,9 @@ public class ItemTemplate {
 
     @ConfigOption(name = "options", description = "Options to modify how the item with this template should behave.")
     private Map<String, Object> options;
+
+    @ConfigOption(name = "socket-requirements", description = "The requirements for socketing this item onto another.", contextProvider = ItemItemRequirementContextProvider.class)
+    private List<ItemRequirement<AttributableItem>> socketRequirements;
 
     public String getId() {
         return this.id;
@@ -56,5 +61,9 @@ public class ItemTemplate {
         }
 
         return (T) this.options.getOrDefault(option.getName(), option.getDefaultValue());
+    }
+
+    public List<ItemRequirement<AttributableItem>> getSocketRequirements() {
+        return this.socketRequirements == null ? List.of() : List.copyOf(this.socketRequirements);
     }
 }

@@ -3,7 +3,9 @@ package net.pwing.itemattributes.item.slot;
 import net.pwing.itemattributes.ItemAttributes;
 import net.pwing.itemattributes.item.AttributableItem;
 import net.pwing.itemattributes.item.ItemManager;
+import net.pwing.itemattributes.item.ItemTemplate;
 import net.pwing.itemattributes.message.TextUtils;
+import net.pwing.itemattributes.requirement.ItemRequirement;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -322,13 +324,23 @@ public class SlotManager {
 
         // Success! We have available slots!
 
+        // Fourth step: Ensure that the socket conditions are met for the slot creator
+        ItemTemplate creatorTemplate = this.itemManager.getTemplate(slotCreator);
+        if (creatorTemplate != null) {
+            for (ItemRequirement<AttributableItem> socketRequirement : creatorTemplate.getSocketRequirements()) {
+                if (!socketRequirement.hasRequirement(attributableItem, viewer)) {
+                    return null; // Socket requirement is not met
+                }
+            }
+        }
+
         // If we are just validating the result, don't bother re-rendering or
         // applying anything, since we just want to check if it is valid
         if (validation) {
             return attributableItem;
         }
 
-        // Fourth (and final) step: Find and occupy the empty slots
+        // Fifth (and final) step: Find and occupy the empty slots
 
         for (Map.Entry<SlotType, List<SlotHolder>> entry : slotsToCreate.entrySet()) {
             List<SlotHolder> emptySlotHolders = emptySlots.get(entry.getKey());
