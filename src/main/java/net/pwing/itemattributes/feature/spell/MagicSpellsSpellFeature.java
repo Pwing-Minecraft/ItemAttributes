@@ -23,7 +23,7 @@ public class MagicSpellsSpellFeature extends PluginFeature<SpellFeature> impleme
             return;
         }
 
-        spell.hardCast(new SpellData(player));
+        spell.hardCast(new SpellData(player, 1.0F, null));
     }
 
     @Nullable
@@ -56,7 +56,7 @@ public class MagicSpellsSpellFeature extends PluginFeature<SpellFeature> impleme
 
         @Override
         public void cast(Player player) {
-            this.spell.hardCast(new SpellData(player));
+            this.spell.hardCast(new SpellData(player, 1.0F, null));
         }
     }
 }
