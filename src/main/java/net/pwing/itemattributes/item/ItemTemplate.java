@@ -30,8 +30,8 @@ public class ItemTemplate {
     @ConfigOption(name = "options", description = "Options to modify how the item with this template should behave.")
     private Map<String, Object> options;
 
-    @ConfigOption(name = "socket-requirements", description = "The requirements for socketing this item onto another.", contextProvider = ItemItemRequirementContextProvider.class)
-    private List<ItemRequirement<AttributableItem>> socketRequirements;
+    @ConfigOption(name = "creator-requirements", description = "The requirements for socketing this item onto another.", contextProvider = ItemItemRequirementContextProvider.class)
+    private List<ItemRequirement<AttributableItem>> creatorRequirements;
 
     public String getId() {
         return this.id;
@@ -63,7 +63,7 @@ public class ItemTemplate {
         return (T) this.options.getOrDefault(option.getName(), option.getDefaultValue());
     }
 
-    public List<ItemRequirement<AttributableItem>> getSocketRequirements() {
-        return this.socketRequirements == null ? List.of() : List.copyOf(this.socketRequirements);
+    public List<ItemRequirement<AttributableItem>> getCreatorRequirements() {
+        return this.creatorRequirements == null ? List.of() : List.copyOf(this.creatorRequirements);
     }
 }

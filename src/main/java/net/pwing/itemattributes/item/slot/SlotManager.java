@@ -327,7 +327,7 @@ public class SlotManager {
         // Fourth step: Ensure that the socket conditions are met for the slot creator
         ItemTemplate creatorTemplate = this.itemManager.getTemplate(slotCreator);
         if (creatorTemplate != null) {
-            for (ItemRequirement<AttributableItem> socketRequirement : creatorTemplate.getSocketRequirements()) {
+            for (ItemRequirement<AttributableItem> socketRequirement : creatorTemplate.getCreatorRequirements()) {
                 if (!socketRequirement.hasRequirement(attributableItem, viewer)) {
                     return null; // Socket requirement is not met
                 }
