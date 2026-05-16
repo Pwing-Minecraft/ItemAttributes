@@ -8,11 +8,11 @@ plugins {
 
 val supportedVersions = listOf(
     "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8",
-    "1.21.9"
+    "1.21.9", "1.21.10", "26.1.1", "26.1.2"
 )
 
 group = "net.pwing.itemattributes"
-version = "1.0.1"
+version = "1.0.2-SNAPSHOT"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
