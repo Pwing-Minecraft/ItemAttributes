@@ -32,7 +32,7 @@ repositories {
         }
     }
     maven("https://repo.nexomc.com/releases")
-    maven("https://central.sonatype.com/repository/maven-snapshots")
+    maven("https://repo.travja.dev/snapshots")
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 
