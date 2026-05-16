@@ -1,8 +1,8 @@
 plugins {
     id("java")
     id("java-library")
-    id("xyz.jpenilla.run-paper") version "2.3.0"
-    id("com.gradleup.shadow") version "8.3.0"
+    id("xyz.jpenilla.run-paper") version "3.0.2"
+    id("com.gradleup.shadow") version "9.3.0"
     id("com.modrinth.minotaur") version "2.+"
 }
 
@@ -31,8 +31,12 @@ repositories {
             artifact()
         }
     }
-    maven("https://repo.nexomc.com/releases")
-    maven("https://repo.travja.dev/snapshots")
+    maven("https://repo.nexomc.com/releases/")
+    maven("https://repo.travja.dev/snapshots/") {
+        metadataSources {
+            artifact()
+        }
+    }
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 

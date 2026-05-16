@@ -8,7 +8,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.pwing.itemattributes.ItemAttributes;
-import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +55,7 @@ public final class TextUtils {
     }
 
     public static String capitalize(String str) {
-        if (StringUtils.isEmpty(str)) {
+        if (str.isEmpty()) {
             return str;
         }
 
