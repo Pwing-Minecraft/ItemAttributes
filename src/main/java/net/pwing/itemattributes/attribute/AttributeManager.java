@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ import java.util.Set;
 
 public class AttributeManager {
     private static final NamespacedKey ATTRIBUTES_KEY = new NamespacedKey(ItemAttributes.getInstance(), "attributes");
-    
+
     private final ItemAttributes plugin;
 
     public AttributeManager(ItemAttributes plugin) {
@@ -39,7 +40,7 @@ public class AttributeManager {
         Bukkit.getPluginManager().registerEvents(new AttributeEventListener(this), plugin);
     }
 
-    public void refreshAttributes(Player player, ItemStack item) {
+    public void refreshAttributes(Player player, @Nullable ItemStack item) {
         if (item == null || item.getItemMeta() == null) {
             return;
         }
@@ -58,6 +59,10 @@ public class AttributeManager {
     }
 
     public void refreshAttributes(Player player, ItemAttribute attribute) {
+        if (attribute.getAttribute().getType() == AttributeBridgeType.REDIRECT) {
+            return;
+        }
+
         Number value = AttributeCalculator.calculateFullAttributeValue(player, this, attribute);
 
         PlayerAttributeApplyEvent event = new PlayerAttributeApplyEvent(player, attribute, value);
@@ -67,6 +72,10 @@ public class AttributeManager {
     }
 
     public void resetAttributes(Player player, ItemAttribute attribute) {
+        if (attribute.getAttribute().getType() == AttributeBridgeType.REDIRECT) {
+            return;
+        }
+
         PlayerAttributeResetEvent event = new PlayerAttributeResetEvent(player, attribute, this.getAttributeValue(player, attribute));
         Bukkit.getPluginManager().callEvent(event);
 
@@ -93,7 +102,7 @@ public class AttributeManager {
 
     private void bindAttribute(PersistentDataHolder holder, ItemAttribute attribute, Number value, boolean callEvent) {
         PersistentDataContainer container = holder.getPersistentDataContainer();
-        
+
         PersistentDataContainer attributesContainer = container.getOrDefault(ATTRIBUTES_KEY, PersistentDataType.TAG_CONTAINER, container.getAdapterContext().newPersistentDataContainer());
         this.bindAttribute(attributesContainer, attribute, value);
 
@@ -229,7 +238,12 @@ public class AttributeManager {
         }
 
         PersistentDataContainer attributesContainer = container.get(ATTRIBUTES_KEY, PersistentDataType.TAG_CONTAINER);
-        Number baseValue = this.attributeValue(attributesContainer, attribute).orElse(0);
+        Optional<Number> baseValueOpt = this.attributeValue(attributesContainer, attribute);
+        if (baseValueOpt.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Number baseValue = baseValueOpt.get();
 
         // See if we have any attributes in additional slots bound to the item
         SlotManager slotManager = this.plugin.getItemManager().getSlotManager();
@@ -238,7 +252,7 @@ public class AttributeManager {
                 continue;
             }
 
-           baseValue = baseValue.doubleValue() + attributeHolder.getValue().doubleValue();
+            baseValue = baseValue.doubleValue() + attributeHolder.getValue().doubleValue();
         }
 
         for (SlotHolder listSlotHolder : slotManager.getSlotsOfType(holder, SlotType.ATTRIBUTE_LIST)) {

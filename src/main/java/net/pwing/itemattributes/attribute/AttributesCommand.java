@@ -62,6 +62,8 @@ public class AttributesCommand extends BaseCommandExecutor {
         }
 
         this.manager.bindAttribute(heldItem, attribute, number);
+        this.manager.refreshAttributes(player, heldItem);
+
         Messages.ATTRIBUTE_BOUND.send(player, attribute.getName(), number.toString());
     }
 
@@ -83,6 +85,8 @@ public class AttributesCommand extends BaseCommandExecutor {
             Messages.ATTRIBUTE_NOT_BOUND.send(player, attribute.getName());
             return;
         }
+
+        this.manager.refreshAttributes(player, heldItem);
 
         Messages.ATTRIBUTE_UNBOUND.send(player, attribute.getName());
     }

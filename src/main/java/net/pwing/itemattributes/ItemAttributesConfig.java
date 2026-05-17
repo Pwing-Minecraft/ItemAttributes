@@ -38,6 +38,7 @@ public class ItemAttributesConfig implements PostProcessable {
     public static ItemAttributesConfig create(Map<String, ItemAttribute> attributes) {
         ItemAttributesConfig config = new ItemAttributesConfig();
         config.attributes = attributes;
+        config.postProcess();
         return config;
     }
 }

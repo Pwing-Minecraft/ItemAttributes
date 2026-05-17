@@ -1,23 +1,38 @@
 package net.pwing.itemattributes.feature.attribute;
 
 import com.nisovin.magicspells.MagicSpells;
+import com.nisovin.magicspells.events.SpellApplyDamageEvent;
+import com.nisovin.magicspells.events.SpellCastEvent;
 import com.nisovin.magicspells.mana.ManaBar;
 import com.nisovin.magicspells.mana.ManaRank;
 import com.nisovin.magicspells.mana.ManaSystem;
+import net.pwing.itemattributes.ItemAttributes;
 import net.pwing.itemattributes.attribute.AttributeApplicator;
 import net.pwing.itemattributes.attribute.AttributeCalculator;
+import net.pwing.itemattributes.attribute.AttributeManager;
+import net.pwing.itemattributes.attribute.AttributeRequirement;
 import net.pwing.itemattributes.feature.PluginFeature;
+import net.pwing.itemattributes.requirement.RequirementType;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 
-public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature> implements AttributesFeature {
+public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature> implements AttributesFeature, Listener {
     private static final Method GET_MANA_BAR_METHOD;
 
     static {
@@ -31,6 +46,8 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
 
     public MagicSpellsAttributeFeature() {
         super("MagicSpells");
+
+        Bukkit.getPluginManager().registerEvents(this, ItemAttributes.getInstance());
     }
 
     @Override
@@ -69,6 +86,46 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
         MagicSpells.getManaHandler().showMana(player);
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onSpellCast(SpellCastEvent event) {
+        if (event.getCaster() instanceof Player player) {
+            AttributeCalculator.EventAttributeResult result = AttributeCalculator.calculateEventAttributeResult(player, ItemAttributes.getInstance().getAttributeManager(), "spell_cast", Map.of("cooldown", event.getCooldown()));
+            float oldCooldown = event.getCooldown();
+            float cooldownAdjustment = (float) AttributeCalculator.getNonRedirectTotal(result);
+            if (cooldownAdjustment != 0) {
+                float rawValue = event.getCooldown() + cooldownAdjustment;
+                event.setCooldown(Math.max(0, rawValue));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onSpellApplyDamage(SpellApplyDamageEvent event) {
+        AttributeManager manager = ItemAttributes.getInstance().getAttributeManager();
+        if (event.getCaster() instanceof Player player) {
+            AttributeRequirement<?> entityRequirement = new AttributeRequirement<>(RequirementType.ENTITY, event.getTarget().getType());
+            AttributeCalculator.EventAttributeResult result = AttributeCalculator.calculateEventAttributeResult(player, manager, "entity_spell_damage", Map.of("damage", event.getFinalDamage()), entityRequirement);
+            double nonRedirectTotal = AttributeCalculator.getNonRedirectTotal(result);
+            if (nonRedirectTotal != 0) {
+                applySpellDamageModifier(event, nonRedirectTotal, AttributeCalculator.shouldNonRedirectCancel(result));
+            }
+
+            List<AttributeCalculator.RedirectApplication> redirectApplications = AttributeCalculator.applyRedirectAttributes(manager, player, event.getTarget(), "entity_spell_damage", Map.of("damage", event.getFinalDamage()), entityRequirement);
+            applyRedirectSuccessEventBonuses(manager, player, event, event.getTarget(), entityRequirement, redirectApplications);
+        }
+
+        if (event.getTarget() instanceof Player player && event.getCaster() != null) {
+            AttributeRequirement<?> entityRequirement = new AttributeRequirement<>(RequirementType.ENTITY, event.getCaster().getType());
+            AttributeCalculator.EventAttributeResult result = AttributeCalculator.calculateEventAttributeResult(player, manager, "entity_take_spell_damage", Map.of("damage", event.getFinalDamage()), entityRequirement);
+            double nonRedirectTotal = AttributeCalculator.getNonRedirectTotal(result);
+            if (nonRedirectTotal != 0) {
+                applySpellDamageModifier(event, nonRedirectTotal, AttributeCalculator.shouldNonRedirectCancel(result));
+            }
+
+            AttributeCalculator.applyRedirectAttributes(manager, player, event.getCaster(), "entity_take_spell_damage", Map.of("damage", event.getFinalDamage()), entityRequirement);
+        }
+    }
+
     private static ManaRank getManaRank(Player player) {
         if (!(MagicSpells.getManaHandler() instanceof ManaSystem system)) {
             return null;
@@ -89,6 +146,63 @@ public class MagicSpellsAttributeFeature extends PluginFeature<AttributesFeature
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    private static void applyRedirectSuccessEventBonuses(AttributeManager manager, Player player, SpellApplyDamageEvent event, Entity targetEntity, AttributeRequirement<?> entityRequirement, List<AttributeCalculator.RedirectApplication> redirectApplications) {
+        Set<String> fireTickSuccessEvents = new LinkedHashSet<>();
+        Set<String> triggeredSuccessEvents = new LinkedHashSet<>();
+        for (AttributeCalculator.RedirectApplication application : redirectApplications) {
+            if (!application.activated() || application.successEvent() == null) {
+                continue;
+            }
+
+            if (AttributeCalculator.isFireTickDeferredRedirect(application)) {
+                fireTickSuccessEvents.add(application.successEvent());
+                continue;
+            }
+
+            triggeredSuccessEvents.add(application.successEvent());
+        }
+
+        if (!fireTickSuccessEvents.isEmpty()) {
+            AttributeCalculator.trackFireTickSuccessEvents(player, targetEntity, fireTickSuccessEvents);
+        }
+
+        if (!triggeredSuccessEvents.isEmpty()) {
+            applySuccessEventsToSpellDamageEvent(manager, player, event, entityRequirement, triggeredSuccessEvents);
+        }
+    }
+
+    private static boolean applySuccessEventsToSpellDamageEvent(AttributeManager manager, Player sourcePlayer, SpellApplyDamageEvent event, AttributeRequirement<?> entityRequirement, Set<String> successEvents) {
+        for (String successEvent : successEvents) {
+            AttributeCalculator.EventAttributeResult result = AttributeCalculator.calculateEventAttributeResult(sourcePlayer, manager, successEvent, Map.of("damage", event.getFinalDamage()), entityRequirement);
+            if (!applyNonRedirectSpellDamageBonuses(event, result)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean applyNonRedirectSpellDamageBonuses(SpellApplyDamageEvent event, AttributeCalculator.EventAttributeResult result) {
+        double nonRedirectTotal = AttributeCalculator.getNonRedirectTotal(result);
+        if (nonRedirectTotal == 0) {
+            return true;
+        }
+
+        return applySpellDamageModifier(event, nonRedirectTotal, AttributeCalculator.shouldNonRedirectCancel(result));
+    }
+
+    private static boolean applySpellDamageModifier(SpellApplyDamageEvent event, double modifier, boolean shouldCancelWhenNegative) {
+        // Mirror mutable EntityDamageEvent semantics by building from the event's current damage state.
+        double rawValue = event.getFinalDamage() + modifier;
+        if (rawValue < 0 && shouldCancelWhenNegative) {
+            event.setFlatModifier(-(event.getDamage() * event.getDamageModifier())); // Sets the final value to zero
+            return false;
+        }
+
+        event.applyFlatDamageModifier(modifier);
+        return true;
     }
 
     public enum MagicSpellsAttribute {
