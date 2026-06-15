@@ -12,7 +12,7 @@ val supportedVersions = listOf(
 )
 
 group = "net.pwing.itemattributes"
-version = "1.0.2"
+version = "1.0.3"
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
